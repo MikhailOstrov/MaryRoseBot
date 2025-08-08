@@ -2,9 +2,10 @@ import asyncio
 import logging
 import os
 from dotenv import load_dotenv
+import string
 
-from aiogram import Bot, Dispatcher, F
-from aiogram.filters import CommandStart
+from aiogram import Bot, Dispatcher, F, types
+from aiogram.filters import CommandStart, Command
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import Message, FSInputFile 
 from aiogram.enums import ParseMode
@@ -14,33 +15,42 @@ from utils.convert_audio import convert_audio_to_wav
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
 API_TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 dp = Dispatcher()
 
 # Хендлер на команду /start
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
-    """
-    Этот хендлер будет вызван на команду /start
-    """
+
     await message.answer(f"Привет, {message.from_user.full_name}! Отправь мне текст или аудио.")
+
+# Хендлер на команду /end
+@dp.message(Command("end"))
+async def command_end_handler(message: types.Message) -> None:
+
+    if message.from_user.id != ADMIN_ID:
+        await message.answer("У вас нет прав для выполнения этой команды.")
+        return
+
+    await message.answer("Бот завершает свою работу. До свидания!")
+    
+    await dp.stop_polling()
 
 # Хендлер на текстовые сообщения
 @dp.message(F.text)
 async def text_message_handler(message: Message) -> None:
-    """
-    Этот хендлер будет принимать и анализировать текстовые сообщения.
-    """
+
     text = message.text
     logging.info(f"Получено текстовое сообщение: '{text}' от {message.from_user.full_name}")
 
-    # Ваша логика анализа текста
-    if "привет" in text.lower():
-        response = "Привет! Рад тебя видеть."
-    elif "пока" in text.lower():
-        response = "До скорой встречи!"
+    translator = str.maketrans('', '', string.punctuation)
+    nice = text.translate(translator)
+
+    if 'мэри спасибо большое' in nice.lower():
+        response = f"Ты такой сладкий..."
     else:
-        response = f"Ты написал: '{text}'. Я запомнил это."
+        response = f"Ты написал: '{text}'. Я запомнила это и записала. Скоро я смогу полноценно общаться с тобой!"
 
     await message.answer(response)
 
@@ -50,7 +60,6 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
 
     file_id = message.voice.file_id if message.voice else message.audio.file_id
     
-    # Создаем папки для загрузок и конвертаций, если их нет
     if not os.path.exists("downloads"):
         os.makedirs("downloads")
     if not os.path.exists("converted"):
@@ -78,12 +87,14 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
 
 
 async def main() -> None:
-    """
-    Главная функция для запуска бота.
-    """
+
     bot = Bot(API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logging.info("Бот был остановлен вручную.")
