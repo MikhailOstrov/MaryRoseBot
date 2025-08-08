@@ -2,22 +2,20 @@ import asyncio
 import logging
 import os
 from dotenv import load_dotenv
+
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import CommandStart
 from aiogram.client.default import DefaultBotProperties
 from aiogram.types import Message, FSInputFile 
 from aiogram.enums import ParseMode
 
-# Загружаем переменные окружения
+from utils.convert_audio import convert_audio_to_wav
+
+logging.basicConfig(level=logging.INFO)
 load_dotenv()
 API_TOKEN = os.getenv("BOT_TOKEN")
 
-# Создаем объекты бота и диспетчера
-# Диспетчер (Dispatcher) - главный роутер для обработки входящих событий (сообщений, команд и т.д.)
 dp = Dispatcher()
-
-# Включаем логирование, чтобы не пропустить важные сообщения
-logging.basicConfig(level=logging.INFO)
 
 # Хендлер на команду /start
 @dp.message(CommandStart())
@@ -49,48 +47,34 @@ async def text_message_handler(message: Message) -> None:
 # Хендлер на аудио и голосовые сообщения
 @dp.message(F.voice | F.audio)
 async def audio_message_handler(message: Message, bot: Bot) -> None:
-    """
-    Этот хендлер будет принимать голосовые и аудио сообщения,
-    скачивать их и отправлять обратно.
-    """
-    # Определяем, что пришло: голосовое или аудиофайл
-    file_id = ""
-    if message.voice:
-        file_id = message.voice.file_id
-        logging.info(f"Получено голосовое сообщение от {message.from_user.full_name}")
-    elif message.audio:
-        file_id = message.audio.file_id
-        logging.info(f"Получен аудиофайл от {message.from_user.full_name}")
 
-    # Создаем папку для загрузок, если ее нет
+    file_id = message.voice.file_id if message.voice else message.audio.file_id
+    
+    # Создаем папки для загрузок и конвертаций, если их нет
     if not os.path.exists("downloads"):
         os.makedirs("downloads")
+    if not os.path.exists("converted"):
+        os.makedirs("converted")
 
     try:
-        # Получаем информацию о файле
+
         file_info = await bot.get_file(file_id)
-        # Формируем путь для сохранения
-        file_path = os.path.join("downloads", file_info.file_path.split('/')[-1])
+        original_ogg_path = os.path.join("downloads", file_info.file_path.split('/')[-1])
+        await bot.download_file(file_info.file_path, destination=original_ogg_path)
+        logging.info(f"Оригинальный файл сохранен: {original_ogg_path}")
 
-        # Скачиваем файл
-        await bot.download_file(file_info.file_path, destination=file_path)
-        logging.info(f"Файл сохранен по пути: {file_path}")
-        await message.reply("Я получил и сохранил твое аудио. Сейчас отправлю его обратно.")
+        await message.reply("Аудио получено. Начинаю конвертацию...")
 
-        # Отправляем аудиофайл обратно пользователю
-        # FSInputFile - специальный класс для отправки файлов с диска
-        audio_to_send = FSInputFile(file_path)
+        wav_path = convert_audio_to_wav(original_ogg_path)
 
-        if message.voice:
-            # Отправляем как голосовое
-            await bot.send_voice(chat_id=message.chat.id, voice=audio_to_send)
-        elif message.audio:
-            # Отправляем как аудио
-            await bot.send_audio(chat_id=message.chat.id, audio=audio_to_send)
+        await message.reply(f"Файл успешно сохранен в форматах MP3 и WAV в папке 'converted'.")
+        
+        mp3_to_send = FSInputFile(wav_path)
+        await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
 
     except Exception as e:
-        logging.error(f"Ошибка при обработке аудио: {e}")
-        await message.reply("Произошла ошибка при обработке твоего аудиофайла.")
+        logging.error(f"Ошибка при конвертации аудио: {e}")
+        await message.reply("Произошла ошибка при обработке вашего аудиофайла. Убедитесь, что FFmpeg установлен.")
 
 
 async def main() -> None:
