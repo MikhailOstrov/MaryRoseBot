@@ -11,6 +11,7 @@ from aiogram.types import Message, FSInputFile
 from aiogram.enums import ParseMode
 
 from utils.convert_audio import convert_audio_to_wav
+from utils.backend_requests import send_audio_to_backend, send_text_to_backend
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -54,6 +55,11 @@ async def text_message_handler(message: Message) -> None:
 
     await message.answer(response)
 
+    try:
+        await send_text_to_backend(text)
+    except Exception as e:
+        logging.error(f"Ошибка отправки текста на бэк: {e}")
+
 # Хендлер на аудио и голосовые сообщения
 @dp.message(F.voice | F.audio)
 async def audio_message_handler(message: Message, bot: Bot) -> None:
@@ -81,16 +87,19 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
         mp3_to_send = FSInputFile(wav_path)
         await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
 
-    except Exception as e:
-        logging.error(f"Ошибка при конвертации аудио: {e}")
-        await message.reply("Произошла ошибка при обработке вашего аудиофайла. Убедитесь, что FFmpeg установлен.")
+        try:
+            await send_audio_to_backend(wav_path)
+        except Exception as e:
+            logging.error(f"Ошибка отправки аудио на бэк: {e}")
 
+    except Exception as e:
+        logging.error(f"Ошибка при обработке аудио: {e}")
+        await message.reply("Произошла ошибка при обработке аудиофайла.")
 
 async def main() -> None:
 
     bot = Bot(API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
     await dp.start_polling(bot)
-
 
 if __name__ == "__main__":
 

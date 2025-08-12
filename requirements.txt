@@ -1,0 +1,8 @@
+aiogram
+asyncio
+logging
+os
+dotenv
+string
+pydub
+ffmpeg
