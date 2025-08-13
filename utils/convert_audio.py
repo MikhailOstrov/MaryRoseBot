@@ -2,8 +2,15 @@ import os
 from pydub import AudioSegment
 import logging
 
-AudioSegment.converter = r"D:/ffmpeg/bin/ffmpeg.exe"
-AudioSegment.ffprobe = r"D:/ffmpeg/bin/ffprobe.exe"
+# Пути к ffmpeg/ffprobe берём из переменных окружения (в т.ч. из .env),
+# при их отсутствии используем системный PATH.
+ffmpeg_path = os.getenv("FFMPEG_PATH")
+ffprobe_path = os.getenv("FFPROBE_PATH")
+
+if ffmpeg_path:
+        AudioSegment.converter = ffmpeg_path
+if ffprobe_path:
+        AudioSegment.ffprobe = ffprobe_path
 
 logging.basicConfig(level=logging.INFO)
 
