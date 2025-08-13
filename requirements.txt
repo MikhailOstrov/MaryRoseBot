@@ -1,8 +1,4 @@
-aiogram
-asyncio
-logging
-os
-dotenv
-string
-pydub
-ffmpeg
+aiogram>=3.0.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
+pydub>=0.25.1
