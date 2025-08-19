@@ -45,19 +45,9 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
     text = message.text
     logging.info(f"Получено текстовое сообщение: '{text}' от {message.from_user.full_name}")
 
-    translator = str.maketrans('', '', string.punctuation)
-    nice = text.translate(translator)
-
-    if 'мэри спасибо большое' in nice.lower():
-        response = f"Ты такой сладкий..."
-    else:
-        response = f"Ты написал: '{text}'. Я запомнила это и записала. Скоро я смогу полноценно общаться с тобой!"
-
-    await message.answer(response)
-
     try:
         response_text = await send_text_to_backend(text, chat_id)
-        await bot.send_message(chat_id, f"{response_text}")
+        await bot.send_message(chat_id, f"{response_text}", parse_mode="MarkdownV2")
 
     except Exception as e:
         logging.error(f"Ошибка отправки текста на бэк: {e}")
@@ -80,18 +70,14 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
         await bot.download_file(file_info.file_path, destination=original_ogg_path)
         logging.info(f"Оригинальный файл сохранен: {original_ogg_path}")
 
-        await message.reply("Аудио получено. Начинаю конвертацию...")
-
         wav_path = convert_audio_to_wav(original_ogg_path)
-
-        await message.reply(f"Файл успешно сохранен в форматах MP3 и WAV в папке 'converted'.")
         
         mp3_to_send = FSInputFile(wav_path)
         await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
 
         try:
             response_audio = await send_audio_to_backend(wav_path, chat_id)
-            await bot.send_message(chat_id, f"{response_audio}")
+            await bot.send_message(chat_id, f"{response_audio}", parse_mode="MarkdownV2")
         except Exception as e:
             logging.error(f"Ошибка отправки аудио на бэк: {e}")
 
