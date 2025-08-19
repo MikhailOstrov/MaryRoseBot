@@ -47,7 +47,7 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
 
     try:
         response_text = await send_text_to_backend(text, chat_id)
-        await bot.send_message(chat_id, f"{response_text}", parse_mode="MarkdownV2")
+        await bot.send_message(chat_id, f"{response_text}")
 
     except Exception as e:
         logging.error(f"Ошибка отправки текста на бэк: {e}")
@@ -77,7 +77,7 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
 
         try:
             response_audio = await send_audio_to_backend(wav_path, chat_id)
-            await bot.send_message(chat_id, f"{response_audio}", parse_mode="MarkdownV2")
+            await bot.send_message(chat_id, f"{response_audio}")
         except Exception as e:
             logging.error(f"Ошибка отправки аудио на бэк: {e}")
 
