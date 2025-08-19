@@ -72,9 +72,6 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
 
         wav_path = convert_audio_to_wav(original_ogg_path)
         
-        mp3_to_send = FSInputFile(wav_path)
-        await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
-
         try:
             response_audio = await send_audio_to_backend(wav_path, chat_id)
             await bot.send_message(chat_id, f"{response_audio}")
