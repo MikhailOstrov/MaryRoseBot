@@ -40,8 +40,8 @@ async def command_end_handler(message: types.Message) -> None:
 
 # Хендлер на текстовые сообщения
 @dp.message(F.text)
-async def text_message_handler(message: Message) -> None:
-
+async def text_message_handler(message: Message, bot: Bot) -> None:
+    chat_id = message.chat.id
     text = message.text
     logging.info(f"Получено текстовое сообщение: '{text}' от {message.from_user.full_name}")
 
@@ -56,14 +56,16 @@ async def text_message_handler(message: Message) -> None:
     await message.answer(response)
 
     try:
-        await send_text_to_backend(text)
+        response_text = await send_text_to_backend(text, chat_id)
+        await bot.send_message(chat_id, f"{response_text}")
+
     except Exception as e:
         logging.error(f"Ошибка отправки текста на бэк: {e}")
 
 # Хендлер на аудио и голосовые сообщения
 @dp.message(F.voice | F.audio)
 async def audio_message_handler(message: Message, bot: Bot) -> None:
-
+    chat_id = message.chat.id
     file_id = message.voice.file_id if message.voice else message.audio.file_id
     
     if not os.path.exists("downloads"):
@@ -88,7 +90,8 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
         await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
 
         try:
-            await send_audio_to_backend(wav_path)
+            response_audio = await send_audio_to_backend(wav_path, chat_id)
+            await bot.send_message(chat_id, f"{response_audio}")
         except Exception as e:
             logging.error(f"Ошибка отправки аудио на бэк: {e}")
 

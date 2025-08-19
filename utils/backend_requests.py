@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 
 AI_BACKEND_URL = os.getenv("AI_BACKEND_URL")
 
-async def send_audio_to_backend(wav_path: str):
+async def send_audio_to_backend(wav_path: str, chat_id: int):
     """Отправка аудио на бэк"""
     url = f"{AI_BACKEND_URL}/api/v1/internal/audio"
     headers = {"X-Internal-Api-Key": 'key'}
@@ -16,17 +16,26 @@ async def send_audio_to_backend(wav_path: str):
     async with httpx.AsyncClient() as client:
         with open(wav_path, "rb") as f:
             files = {"audio": (os.path.basename(wav_path), f, "audio/wav")}
-            response = await client.post(url, files=files, headers=headers, timeout=30.0)
+            data = {"chat_id": str(chat_id)}
+            response = await client.post(url, files=files, data=data, headers=headers, timeout=30.0)
             response.raise_for_status()
-    logging.info(f"Аудио {wav_path} успешно отправлено на бэк")
+            result = response.json()
+
+    logging.info(f"[chat_id={chat_id}] Аудио {wav_path} успешно обработано на бэке")
+    return result.get("text", "")
 
 
-async def send_text_to_backend(text: str):
+async def send_text_to_backend(text: str, chat_id: int):
     """Отправка текста на бэк"""
     url = f"{AI_BACKEND_URL}/api/v1/internal/text"
     headers = {"X-Internal-Api-Key": 'key'}
 
     async with httpx.AsyncClient() as client:
-        response = await client.post(url, json={"text": text}, headers=headers, timeout=30.0)
+        response = await client.post(
+            url, json={"text": text, "chat_id": chat_id}, headers=headers, timeout=30.0
+        )
         response.raise_for_status()
-    logging.info(f"Текст '{text}' успешно отправлен на бэк")
+        result = response.json()
+
+    logging.info(f"[chat_id={chat_id}] Текст '{text}' успешно обработан на бэке")
+    return result.get("text", text)
