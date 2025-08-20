@@ -37,7 +37,6 @@ jobs:
 
             # Переходим в папку MaryRoseBot и перезапускаем бота
             echo ">>> Deploying Telegram Bot..."
-            cd MaryRoseBot
             sudo /home/jzndjxjcbd/restart-telegram-bot.sh
             
             echo ">>> Telegram Bot deployment completed!"
