@@ -22,13 +22,13 @@ jobs:
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.MAIN_SERVICE_SSH_PRIVATE_KEY }}
 
       # Шаг 3: Подключаемся к ВМ и деплоим бота
       - name: Deploy Telegram Bot
         run: |
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-          ssh -T ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'bash -s' << 'ENDSSH'
+          ssh-keyscan -H ${{ secrets.MAIN_SERVICE_SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh -T ${{ secrets.MAIN_SERVICE_SSH_USER }}@${{ secrets.MAIN_SERVICE_SSH_HOST }} 'bash -s' << 'ENDSSH'
             set -e # Прерывать выполнение при любой ошибке
 
             echo ">>> Connecting to VM and pulling latest changes..."
