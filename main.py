@@ -12,6 +12,7 @@ from aiogram.enums import ParseMode
 
 from utils.convert_audio import convert_audio_to_wav
 from utils.backend_requests import send_audio_to_backend, send_text_to_backend
+from knowledge_base.send_to_kb import send_text_to_kb
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -48,7 +49,7 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
     try:
         response_text = await send_text_to_backend(text, chat_id)
         await bot.send_message(chat_id, f"{response_text}")
-
+        await send_text_to_kb(response_text, chat_id)
     except Exception as e:
         logging.error(f"Ошибка отправки текста на бэк: {e}")
 
@@ -72,9 +73,6 @@ async def audio_message_handler(message: Message, bot: Bot) -> None:
 
         wav_path = convert_audio_to_wav(original_ogg_path)
         
-        mp3_to_send = FSInputFile(wav_path)
-        await bot.send_audio(chat_id=message.chat.id, audio=mp3_to_send)
-
         try:
             response_audio = await send_audio_to_backend(wav_path, chat_id)
             await bot.send_message(chat_id, f"{response_audio}")
