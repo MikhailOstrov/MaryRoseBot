@@ -1,0 +1,43 @@
+# Название нашего workflow
+name: Deploy Telegram Bot to Production VM
+
+# Условие для запуска: любой пуш в ветку 'dev-brach'
+on:
+  push:
+    branches:
+      - main
+
+# Описание задач
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Шаг 1: Скачиваем код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      # Шаг 2: Настраиваем SSH-ключ из секретов
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.MAIN_SERVICE_SSH_PRIVATE_KEY }}
+
+      # Шаг 3: Подключаемся к ВМ и деплоим бота
+      - name: Deploy Telegram Bot
+        run: |
+          ssh-keyscan -H ${{ secrets.MAIN_SERVICE_SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh -T ${{ secrets.MAIN_SERVICE_SSH_USER }}@${{ secrets.MAIN_SERVICE_SSH_HOST }} 'bash -s' << 'ENDSSH'
+            set -e # Прерывать выполнение при любой ошибке
+
+            echo ">>> Connecting to VM and pulling latest changes..."
+            cd /home/jzndjxjcbd/MaryRoseBot
+            git pull origin main
+
+            # Переходим в папку MaryRoseBot и перезапускаем бота
+            echo ">>> Deploying Telegram Bot..."
+            sudo /home/jzndjxjcbd/restart-telegram-bot.sh
+            
+            echo ">>> Telegram Bot deployment completed!"
+          ENDSSH
