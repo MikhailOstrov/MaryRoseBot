@@ -11,8 +11,9 @@ from aiogram.types import Message, FSInputFile
 from aiogram.enums import ParseMode
 
 from utils.convert_audio import convert_audio_to_wav
-from utils.backend_requests import send_audio_to_backend, send_text_to_backend
-from knowledge_base.send_to_kb import send_text_to_kb
+from utils.backend_requests import send_audio_to_backend
+from kb_requests.handlers import save_info_in_kb, get_info_from_kb
+from utils.llm_handler import get_response
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()
@@ -46,10 +47,22 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
     text = message.text
     logging.info(f"Получено текстовое сообщение: '{text}' от {message.from_user.full_name}")
 
+    response = await get_response(text)
+
+    print(response) # Пока пусть будет, чтобы тестить
+
+    key = response['key']
+    text = response['text']
+
     try:
-        response_text = await send_text_to_backend(text, chat_id)
-        await bot.send_message(chat_id, f"{response_text}")
-        await send_text_to_kb(response_text, chat_id)
+        if key == 0:
+            await save_info_in_kb(text, chat_id)
+        elif key == 1:
+            await get_info_from_kb(text, chat_id)
+        elif key == 2:
+            await bot.send_message(chat_id, f"{text}")
+        else:
+            logging.error(f"Ошибка обработки текста")
     except Exception as e:
         logging.error(f"Ошибка отправки текста на бэк: {e}")
 

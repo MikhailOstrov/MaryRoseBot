@@ -24,7 +24,7 @@ async def send_audio_to_backend(wav_path: str, chat_id: int):
     logging.info(f"[chat_id={chat_id}] Аудио {wav_path} успешно обработано на бэке")
     return result.get("text", "")
 
-
+'''
 async def send_text_to_backend(text: str, chat_id: int):
     """Отправка текста на бэк"""
     url = f"{AI_BACKEND_URL}/api/v1/internal/text"
@@ -39,3 +39,4 @@ async def send_text_to_backend(text: str, chat_id: int):
 
     logging.info(f"[chat_id={chat_id}] Текст '{text}' успешно обработан на бэке")
     return result.get("text", text)
+    '''
