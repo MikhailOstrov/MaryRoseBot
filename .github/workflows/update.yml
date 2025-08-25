@@ -35,6 +35,14 @@ jobs:
             cd /home/jzndjxjcbd/MaryRoseBot
             git pull origin main
 
+            # Активируем virtual environment и устанавливаем зависимости
+            echo ">>> Setting up virtual environment and installing dependencies..."
+            source venv/bin/activate
+
+            echo ">>> Installing/updating Python dependencies..."
+            pip install -r requirements.txt
+
+            echo ">>> Dependencies installed successfully. Restarting Telegram Bot..."
             # Переходим в папку MaryRoseBot и перезапускаем бота
             echo ">>> Deploying Telegram Bot..."
             sudo /home/jzndjxjcbd/restart-telegram-bot.sh
