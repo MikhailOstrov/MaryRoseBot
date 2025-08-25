@@ -51,7 +51,7 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
 
     print(response) # Пока пусть будет, чтобы тестить
 
-    key = response['key']
+    key = int(response['key'])
     text = response['text']
 
     try:
