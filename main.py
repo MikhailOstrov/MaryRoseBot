@@ -2,7 +2,7 @@ import asyncio
 import logging
 import os
 from dotenv import load_dotenv
-import string
+import json
 
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandStart, Command
@@ -49,10 +49,12 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
 
     response = await get_response(text)
 
-    print(response) # Пока пусть будет, чтобы тестить
+    data = json.loads(response)
 
-    key = int(response['key'])
-    text = response['text']
+    print(data) # Пока пусть будет, чтобы тестить
+
+    key = int(data['key'])
+    text = data['text']
 
     try:
         if key == 0:
