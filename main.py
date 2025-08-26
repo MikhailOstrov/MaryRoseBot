@@ -12,7 +12,7 @@ from aiogram.enums import ParseMode
 
 from utils.convert_audio import convert_audio_to_wav
 from utils.backend_requests import send_audio_to_backend
-from kb_requests.handlers import save_info_in_kb, get_info_from_kb
+from kb_requests.handlers import save_info_in_kb, get_info_from_kb, telegram_auth
 from utils.llm_handler import get_response
 from utils.chat_history import chat_history
 
@@ -47,6 +47,7 @@ async def command_end_handler(message: types.Message) -> None:
 async def text_message_handler(message: Message, bot: Bot) -> None:
     chat_id = message.chat.id
     user_text = message.text
+    await telegram_auth("pro100mihail7@gmail.com", chat_id)
     logging.info(f"Получено текстовое сообщение: '{user_text}' от {message.from_user.full_name}")
 
     response = await get_response(user_text, chat_id)
