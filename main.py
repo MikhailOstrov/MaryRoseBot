@@ -60,10 +60,17 @@ async def text_message_handler(message: Message, bot: Bot) -> None:
 
     try:
         if key == 0:
+
             await save_info_in_kb(text_for_response, chat_id)
+            await bot.send_message(chat_id, f"Сохранил твою информацию в БЗ")
+
         elif key == 1:
-            await get_info_from_kb(text_for_response, chat_id)
+
+            info = await get_info_from_kb(text_for_response, chat_id)
+            await bot.send_message(chat_id, f"{info}")
+
         elif key == 2:
+
             await bot.send_message(chat_id, f"{text_for_response}")
 
             # Логика сохранения истории чата
