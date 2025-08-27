@@ -7,7 +7,9 @@ import json
 from aiogram import Bot, Dispatcher, F, types
 from aiogram.filters import CommandStart, Command
 from aiogram.client.default import DefaultBotProperties
-from aiogram.types import Message, FSInputFile 
+from aiogram.fsm.state import StatesGroup, State
+from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from aiogram.enums import ParseMode
 
 from utils.convert_audio import convert_audio_to_wav
@@ -24,25 +26,43 @@ ADMIN_ID = int(os.getenv("ADMIN_ID"))
 
 dp = Dispatcher()
 
-# Хендлер на команду /start
+class AuthStates(StatesGroup):
+    waiting_for_email = State()
+
+# /start хендлер
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="📝 Зарегистрироваться", url="https://maryrose.by/signup"),
+                InlineKeyboardButton(text="🔑 Авторизоваться", callback_data="auth")
+            ]
+        ]
+    )
 
+    await message.answer(
+        f"👋 Привет, {message.from_user.full_name}! Добро пожаловать в MaryRose.\n\nВыберите действие:",
+        reply_markup=keyboard
+    )
+
+# Нажал "Авторизоваться"
+@dp.callback_query(F.data == "auth")
+async def auth_callback(callback: CallbackQuery, state: FSMContext):
+    await callback.message.answer("✉️ Введите вашу почту для авторизации:")
+    await state.set_state(AuthStates.waiting_for_email)
+    await callback.answer()
+
+# Обработка email
+@dp.message(AuthStates.waiting_for_email)
+async def process_email(message: Message, state: FSMContext):
+    email = message.text.strip()
     chat_id = message.chat.id
-    await telegram_auth("pro100mihail7@gmail.com", chat_id)
-    await message.answer(f"Привет, {message.from_user.full_name}! Отправь мне текст или аудио.")
-
-# Хендлер на команду /end
-@dp.message(Command("end"))
-async def command_end_handler(message: types.Message) -> None:
-
-    if message.from_user.id != ADMIN_ID:
-        await message.answer("У вас нет прав для выполнения этой команды.")
-        return
-
-    await message.answer("Бот завершает свою работу. До свидания!")
     
-    await dp.stop_polling()
+    await telegram_auth(email, chat_id)
+
+    await message.answer(f"✅ Авторизация успешна!\nВаш chat_id: `{chat_id}`\nEmail: `{email}`")
+    await state.clear()
 
 # Хендлер на текстовые сообщения
 @dp.message(F.text)
