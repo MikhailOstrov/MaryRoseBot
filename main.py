@@ -28,6 +28,8 @@ dp = Dispatcher()
 @dp.message(CommandStart())
 async def command_start_handler(message: Message) -> None:
 
+    chat_id = message.chat.id
+    await telegram_auth("pro100mihail7@gmail.com", chat_id)
     await message.answer(f"Привет, {message.from_user.full_name}! Отправь мне текст или аудио.")
 
 # Хендлер на команду /end
@@ -47,7 +49,6 @@ async def command_end_handler(message: types.Message) -> None:
 async def text_message_handler(message: Message, bot: Bot) -> None:
     chat_id = message.chat.id
     user_text = message.text
-    await telegram_auth("pro100mihail7@gmail.com", chat_id)
     logging.info(f"Получено текстовое сообщение: '{user_text}' от {message.from_user.full_name}")
 
     response = await get_response(user_text, chat_id)
