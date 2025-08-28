@@ -16,5 +16,6 @@ async def start_search(message: Message, state: FSMContext):
 @router.message(SearchKnowledge.waiting_for_query)
 async def process_search(message: Message, state: FSMContext):
     search_text = await response_for_searh(message.text)
-    await get_info_from_kb(search_text, message.chat.id)
+    result = await get_info_from_kb(search_text, message.chat.id)
+    await message.answer(result)
     await state.clear()
