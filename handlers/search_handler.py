@@ -10,7 +10,7 @@ router = Router()
 
 # /search
 @router.message(lambda message: message.text == "🔎 Найти знание")
-async def cmd_search(message: Message, state: FSMContext):
+async def start_search(message: Message, state: FSMContext):
     await message.answer("🔎 Введите запрос для поиска в базе знаний:")
     await state.set_state(SearchKnowledge.waiting_for_query)
 
