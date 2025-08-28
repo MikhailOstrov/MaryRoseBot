@@ -2,7 +2,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
 from aiogram import Router
 
-from config import dp
 from states.kb_states import AddKnowledge
 from services.kb_requests import save_info_in_kb
 
