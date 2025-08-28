@@ -8,13 +8,11 @@ logging.basicConfig(level=logging.INFO)
 async def telegram_auth(email: str, chat_id: int):
 
     url = "https://maryrose.by/auth/telegram-auth"
-
     async with httpx.AsyncClient() as client:
         response = await client.post(
             url, json={"email": email, "chat_id": chat_id}, timeout=30.0
         )
         response.raise_for_status()
-
     logging.info(f"Авторизаци успешна")
 
 async def save_info_in_kb(text: str, chat_id: int):
@@ -32,19 +30,14 @@ async def save_info_in_kb(text: str, chat_id: int):
     return result.get("text", text)
 
 async def get_info_from_kb(query: str, chat_id: int):
-    """
-    Делает запрос в базу знаний и возвращает только title и content_preview.
-    """
 
     url = "https://maryrose.by/meetings/knowledge/search"
-
     async with httpx.AsyncClient() as client:
         response = await client.post(
             url, json={"query": query, "chat_id": chat_id}, timeout=30.0
         )
         response.raise_for_status()
         result = response.json()
-
     logging.info(f"Ответ от БЗ: {result}")
 
     if not result.get("success") or "results" not in result:
@@ -62,5 +55,4 @@ async def get_info_from_kb(query: str, chat_id: int):
             f"📌 <b>{idx}. {r['title']}</b>\n"
             f"   {r['content_preview']}\n\n"
         )
-
     return message.strip()
