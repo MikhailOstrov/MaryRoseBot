@@ -1,5 +1,4 @@
 from aiogram.fsm.context import FSMContext
-from aiogram.filters import Command
 from aiogram.types import Message
 from aiogram import Router
 
@@ -10,8 +9,8 @@ from services.kb_requests import save_info_in_kb
 router = Router()
 
 # /add
-@router.message(Command("add"))
-async def cmd_add(message: Message, state: FSMContext):
+@router.message(lambda message: message.text == "➕ Добавить знание")
+async def start_add(message: Message, state: FSMContext):
     await message.answer("📝 Введите текст, который нужно сохранить в базу знаний:")
     await state.set_state(AddKnowledge.waiting_for_text)
 

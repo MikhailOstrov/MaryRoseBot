@@ -1,6 +1,5 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.filters import Command
 from aiogram import Router
 
 from config import dp
@@ -10,7 +9,7 @@ from services.kb_requests import get_info_from_kb
 router = Router()
 
 # /search
-@router.message(Command("search"))
+@router.message(lambda message: message.text == "🔎 Найти знание")
 async def cmd_search(message: Message, state: FSMContext):
     await message.answer("🔎 Введите запрос для поиска в базе знаний:")
     await state.set_state(SearchKnowledge.waiting_for_query)
