@@ -15,5 +15,6 @@ async def start_add(message: Message, state: FSMContext):
 
 @router.message(AddKnowledge.waiting_for_text)
 async def process_add(message: Message, state: FSMContext):
-    await save_info_in_kb(message.text, message.chat.id)
+    result = await save_info_in_kb(message.text, message.chat.id)
+    await message.answer(result)
     await state.clear()
