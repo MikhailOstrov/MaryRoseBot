@@ -27,6 +27,7 @@ async def save_info_in_kb(text: str, chat_id: int):
         result = response.json()
 
     logging.info(f"Текст '{text}' успешно отправлен в БЗ")
+    return result
 
 async def get_info_from_kb(query: str, chat_id: int):
 
