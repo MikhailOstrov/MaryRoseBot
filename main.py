@@ -9,9 +9,9 @@ from handlers import search_handler, start_handler, text_handler, audio_handler,
 async def main():
 
     bot = Bot(API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-
-    dp.include_router(add_handler.router)
+    
     dp.include_router(search_handler.router)
+    dp.include_router(add_handler.router)
     dp.include_router(start_handler.router)
     dp.include_router(audio_handler.router)
     dp.include_router(text_handler.router)
