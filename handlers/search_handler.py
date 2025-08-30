@@ -23,7 +23,7 @@ async def process_search(message: Message, state: FSMContext):
     await message.answer(result)
     await state.clear()
 
-@router.message(SearchKnowledge.waiting_for_text, F.voice | F.audio)
+@router.message(SearchKnowledge.waiting_for_query, F.voice | F.audio)
 async def process_add_audio(message: Message, state: FSMContext, bot: Bot):
     chat_id = message.chat.id
     file_id = message.voice.file_id if message.voice else message.audio.file_id
