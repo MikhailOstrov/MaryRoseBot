@@ -1,25 +1,38 @@
-import httpx
 from dotenv import load_dotenv
-import os 
-import logging 
+import logging
+import requests
+import base64
+from config import ENDPOINT, RUNPOD_API
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-AI_BACKEND_URL = os.getenv("AI_BACKEND_URL")
-
-async def send_audio_to_backend(wav_path: str, chat_id: int):
-    """Отправка аудио на бэк"""
-    url = f"{AI_BACKEND_URL}/api/v1/internal/audio"
-    headers = {"X-Internal-Api-Key": 'key'}
-
-    async with httpx.AsyncClient() as client:
-        with open(wav_path, "rb") as f:
-            files = {"audio": (os.path.basename(wav_path), f, "audio/wav")}
-            data = {"chat_id": str(chat_id)}
-            response = await client.post(url, files=files, data=data, headers=headers, timeout=30.0)
-            response.raise_for_status()
-            result = response.json()
-
-    logging.info(f"[chat_id={chat_id}] Аудио {wav_path} успешно обработано на бэке")
-    return result.get("text", "")
+async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
+    """
+    Отправляет байты аудио на серверless-бэкенд для транскрибации.
+    """
+    try:
+        # Кодируем байты аудио в Base64
+        audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
+        
+        payload = {
+            "input": {
+                "chat_id": chat_id,
+                "audio_b64": audio_b64
+            }
+        }
+        
+        headers = {"Authorization": f"Bearer {RUNPOD_API}"}
+        
+        r = requests.post(ENDPOINT, json=payload, headers=headers)
+        r.raise_for_status()
+        
+        response_data = r.json()
+        
+        if response_data.get("status") == "ok":
+            return response_data.get("text", "Текст не найден")
+        else:
+            return f"Ошибка: {response_data.get('error', 'Неизвестная ошибка')}"
+            
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"Ошибка при отправке запроса на бэкэнд: {e}")
