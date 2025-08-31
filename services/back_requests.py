@@ -28,11 +28,8 @@ async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
         
         response_data = r.json()
         
-        if response_data.get("status") == "ok":
-            output_data = response_data.get("output", {})
-            return output_data.get("text", "Текст не найден")
-        else:
-            return f"Ошибка: {response_data.get('error', 'Неизвестная ошибка')}"
-            
+        text = response_data.get('output', {}).get('text')
+        return text
+    
     except requests.exceptions.RequestException as e:
         raise Exception(f"Ошибка при отправке запроса на бэкэнд: {e}")
