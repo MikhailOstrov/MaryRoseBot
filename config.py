@@ -1,12 +1,18 @@
-import logging
-from aiogram import Dispatcher
 import os
+import logging
 from dotenv import load_dotenv
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from aiogram import Dispatcher
 
 load_dotenv()
+
 API_TOKEN = os.getenv("BOT_TOKEN")
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+
+# Единый ключ для безопасного обмена данными между ботом и основным бэкендом.
+INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY")
+
+# Логирование
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 dp = Dispatcher()
