@@ -2,17 +2,17 @@ from dotenv import load_dotenv
 import logging
 import requests
 import base64
+import os
+
 from config import ENDPOINT, RUNPOD_API
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
-    """
-    Отправляет байты аудио на serverless-бэкенд для транскрибации.
-    """
+async def send_audio_to_backend(wav_path: str, chat_id: int) -> str:
     try:
-        audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
+        with open(wav_path, "rb") as f:
+            audio_b64 = base64.b64encode(f.read()).decode("utf-8")
         
         payload = {
             "input": {
@@ -27,9 +27,13 @@ async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
         r.raise_for_status()
         
         response_data = r.json()
-        
         text = response_data.get('output', {}).get('text')
         return text
     
     except requests.exceptions.RequestException as e:
         raise Exception(f"Ошибка при отправке запроса на бэкэнд: {e}")
+    
+    finally:
+        if os.path.exists(wav_path):
+            os.remove(wav_path)
+            logging.info(f"Файл {wav_path} успешно удален.")

@@ -28,7 +28,7 @@ async def basic_response(user_text: str, chat_id: int) -> str:
 async def response_for_searh(user_text: str) -> str:
     
     response_for_searh = '''Ты умный ассистент по помощи в поиске информации по векторным базам данных.
-    Сформулируй текст так, чтобы отправить его в базу данных и получить релевантные ответы.'''
+    Сделай запрос кратким и точным, без лишних вопросов и лишних слов. Просто сократи текст пользователь.'''
 
     chat_completion = await CLIENT_AS.chat.completions.create(
         model="openai/gpt-4o-mini",
