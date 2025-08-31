@@ -12,7 +12,6 @@ async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
     Отправляет байты аудио на серверless-бэкенд для транскрибации.
     """
     try:
-        # Кодируем байты аудио в Base64
         audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
         
         payload = {
