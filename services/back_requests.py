@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
     """
-    Отправляет байты аудио на серверless-бэкенд для транскрибации.
+    Отправляет байты аудио на serverless-бэкенд для транскрибации.
     """
     try:
         audio_b64 = base64.b64encode(audio_bytes).decode("utf-8")
@@ -29,7 +29,8 @@ async def send_audio_to_backend(audio_bytes: bytes, chat_id: int) -> str:
         response_data = r.json()
         
         if response_data.get("status") == "ok":
-            return response_data.get("text", "Текст не найден")
+            output_data = response_data.get("output", {})
+            return output_data.get("text", "Текст не найден")
         else:
             return f"Ошибка: {response_data.get('error', 'Неизвестная ошибка')}"
             
