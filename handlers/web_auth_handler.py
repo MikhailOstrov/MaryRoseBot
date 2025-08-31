@@ -2,6 +2,7 @@ from aiohttp import web
 from aiogram import Bot
 from utils.session_manager import session_manager
 from config import INTERNAL_API_KEY, logger
+from keyboards.reply_keyboard import main_menu
 
 async def handle_auth_success(request: web.Request):
     """
@@ -33,8 +34,12 @@ async def handle_auth_success(request: web.Request):
         # Удаляем сообщение с кнопкой "Войти в аккаунт"
         await bot.delete_message(chat_id=session.user_id, message_id=session.message_id)
         
-        # Отправляем приветственное сообщение
-        await bot.send_message(chat_id=session.user_id, text="✅ Добро пожаловать! Вы успешно авторизовались.")
+        # Отправляем приветственное сообщение с основной клавиатурой
+        await bot.send_message(
+            chat_id=session.user_id, 
+            text="✅ Добро пожаловать! Вы успешно авторизовались.",
+            reply_markup=main_menu
+        )
         
         logger.info(f"Successfully processed auth for user {session.user_id}")
         return web.Response(status=200, text="OK")
