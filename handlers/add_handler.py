@@ -30,8 +30,11 @@ async def process_add_audio(message: Message, state: FSMContext, bot: Bot):
     try:
         file_info = await bot.get_file(file_id)
         audio_bytes = await bot.download_file(file_info.file_path)
+
+        logger.error(f"Ошибка при скачивании аудио")
+
         response_audio = await send_audio_to_backend(audio_bytes, chat_id)
-        
+
         await save_info_in_kb(response_audio, chat_id)
         await message.answer("Аудио расшифровано и сохранено в базу знаний.")
         await state.clear()
