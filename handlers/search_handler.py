@@ -30,7 +30,11 @@ async def process_add_audio(message: Message, state: FSMContext, bot: Bot):
 
     try:
         file_info = await bot.get_file(file_id)
-        audio_bytes = await bot.download_file(file_info.file_path)
+        audio_stream = await bot.download_file(file_info.file_path)
+            
+        # Преобразуем объект _io.BytesIO в байты
+        audio_bytes = audio_stream.getvalue()
+        
         response_audio = await send_audio_to_backend(audio_bytes, chat_id)
         
         search_text = await response_for_searh(response_audio)
