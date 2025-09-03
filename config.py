@@ -8,6 +8,7 @@ load_dotenv()
 API_TOKEN = os.getenv("BOT_TOKEN")
 ENDPOINT = os.getenv("ENDPOINT")
 RUNPOD_API = os.getenv("RUNPOD_API")
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 # Единый ключ для безопасного обмена данными между ботом и основным бэкендом.
 INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY")
