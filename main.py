@@ -3,13 +3,12 @@ import logging
 import sys
 
 from aiogram import Bot, Dispatcher
-from aiogram.enums import ParseMode
 from aiohttp import web
 
 from config import dp, logger, API_TOKEN
-from handlers import search_handler, start_handler, text_handler, add_handler
+from handlers import start_handler
 from config import API_TOKEN
-from handlers import start_handler, register_handler, add_handler, search_handler
+from handlers import start_handler, register_handler, text_handler
 from handlers.web_auth_handler import setup_webapp_routes
 
 # Включаем логирование, чтобы видеть и ошибки, и информационные сообщения
@@ -24,8 +23,7 @@ async def main() -> None:
     # Регистрируем роутеры
     dp.include_router(start_handler.router)
     dp.include_router(register_handler.router)
-    dp.include_router(add_handler.router)
-    dp.include_router(search_handler.router)
+    dp.include_router(text_handler.router)
 
     # --- НАЧАЛО: Настройка и запуск веб-сервера ---
     

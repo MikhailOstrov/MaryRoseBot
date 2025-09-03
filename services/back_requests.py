@@ -1,39 +1,25 @@
+import httpx
 from dotenv import load_dotenv
-import logging
-import requests
-import base64
-import os
-
-from config import ENDPOINT, RUNPOD_API
+import os 
+import logging 
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-async def send_audio_to_backend(wav_path: str, chat_id: int) -> str:
-    try:
+AI_BACKEND_URL = os.getenv("AI_BACKEND_URL")
+
+async def send_audio_to_backend(wav_path: str, chat_id: int):
+    """Отправка аудио на бэк"""
+    url = f"{AI_BACKEND_URL}/api/v1/internal/audio"
+    headers = {"X-Internal-Api-Key": 'key'}
+
+    async with httpx.AsyncClient() as client:
         with open(wav_path, "rb") as f:
-            audio_b64 = base64.b64encode(f.read()).decode("utf-8")
-        
-        payload = {
-            "input": {
-                "chat_id": chat_id,
-                "audio_b64": audio_b64
-            }
-        }
-        
-        headers = {"Authorization": f"Bearer {RUNPOD_API}"}
-        
-        r = requests.post(ENDPOINT, json=payload, headers=headers)
-        r.raise_for_status()
-        
-        response_data = r.json()
-        text = response_data.get('output', {}).get('text')
-        return text
-    
-    except requests.exceptions.RequestException as e:
-        raise Exception(f"Ошибка при отправке запроса на бэкэнд: {e}")
-    
-    finally:
-        if os.path.exists(wav_path):
-            os.remove(wav_path)
-            logging.info(f"Файл {wav_path} успешно удален.")
+            files = {"audio": (os.path.basename(wav_path), f, "audio/wav")}
+            data = {"chat_id": str(chat_id)}
+            response = await client.post(url, files=files, data=data, headers=headers, timeout=30.0)
+            response.raise_for_status()
+            result = response.json()
+
+    logging.info(f"[chat_id={chat_id}] Аудио {wav_path} успешно обработано на бэке")
+    return result.get("text", "")

@@ -6,7 +6,6 @@ from aiogram import Dispatcher
 load_dotenv()
 
 API_TOKEN = os.getenv("BOT_TOKEN")
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
 ENDPOINT = os.getenv("ENDPOINT")
 RUNPOD_API = os.getenv("RUNPOD_API")
 

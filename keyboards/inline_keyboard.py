@@ -8,3 +8,12 @@ auth_keyboard = InlineKeyboardMarkup(
         ]
     ]
 )
+
+decision = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text=" Да ", callback_data="Yes"),
+            InlineKeyboardButton(text=" Нет ", callback_data="No")
+        ]
+    ]
+)
