@@ -5,7 +5,6 @@ import os
 from aiogram import Bot
 
 from config import logger
-from utils.chat_history import chat_history
 from utils.llm_handler import llm_response, llm_response_after_kb
 from utils.convert_audio import convert_audio_to_wav
 from services.back_requests import send_audio_to_backend
