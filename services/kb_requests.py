@@ -40,18 +40,18 @@ async def get_info_from_kb(query: str, chat_id: int):
     logging.info(f"Ответ от БЗ: {result}")
 
     if not result.get("success") or "results" not in result:
-        return "По вашему запросу ничего не найдено"
+        return None
 
     results = result["results"]
 
     if not results:
-        return "По вашему запросу ничего не найдено"
+        return None
 
     # Формируем красивый список
     message = "Результаты поиска:\n\n"
     for idx, r in enumerate(results, start=1):
         message += (
-            f"📌 <b>{idx}. {r['title']}</b>\n"
+            f"📌 --- {idx}. {r['title']} ---\n"
             f"   {r['content_preview']}\n\n"
         )
     return message.strip()
