@@ -1,16 +1,12 @@
 import os
 from pydub import AudioSegment
-import logging
 
-ffmpeg_path = os.getenv("FFMPEG_PATH")
-ffprobe_path = os.getenv("FFPROBE_PATH")
+from config import ffmpeg_path, ffprobe_path, logger
 
 if ffmpeg_path:
         AudioSegment.converter = ffmpeg_path
 if ffprobe_path:
         AudioSegment.ffprobe = ffprobe_path
-
-logging.basicConfig(level=logging.INFO)
 
 def convert_audio_to_wav(original_ogg_path: str) -> str:
         
@@ -21,6 +17,6 @@ def convert_audio_to_wav(original_ogg_path: str) -> str:
 
         wav_path = os.path.join("converted", f"{base_filename}.wav")
         audio.export(wav_path, format="wav")
-        logging.info(f"Файл конвертирован в WAV: {wav_path}")
+        logger.info(f"Файл конвертирован в WAV: {wav_path}")
 
         return wav_path

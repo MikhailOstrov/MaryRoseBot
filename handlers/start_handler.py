@@ -7,7 +7,6 @@ from services import api_service
 from keyboards.register_keyboard import get_webapp_keyboard
 from utils.session_manager import session_manager
 
-
 router = Router()
 
 # /start

@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+# Под авторизацию
 auth_keyboard = InlineKeyboardMarkup(
     inline_keyboard=[
         [
@@ -9,6 +10,7 @@ auth_keyboard = InlineKeyboardMarkup(
     ]
 )
 
+# Под выбор после отрицательного результата поиска
 decision = InlineKeyboardMarkup(
     inline_keyboard=[
         [

@@ -8,7 +8,6 @@ from utils.session_manager import session_manager
 
 router = Router()
 
-
 async def send_registration_link(user_id: int, message: Message, bot: Bot):
     """
     Универсальная функция для отправки ссылки на регистрацию.

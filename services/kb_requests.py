@@ -1,9 +1,6 @@
 import httpx
-import logging
-from dotenv import load_dotenv
 
-load_dotenv()
-logging.basicConfig(level=logging.INFO)
+from config import logger
 
 async def telegram_auth(email: str, chat_id: int):
 
@@ -13,7 +10,7 @@ async def telegram_auth(email: str, chat_id: int):
             url, json={"email": email, "chat_id": chat_id}, timeout=30.0
         )
         response.raise_for_status()
-    logging.info(f"Авторизаци успешна")
+    logger.info(f"Авторизаци успешна")
 
 async def save_info_in_kb(text: str, chat_id: int):
 
@@ -26,7 +23,7 @@ async def save_info_in_kb(text: str, chat_id: int):
         response.raise_for_status()
         result = response.json()
 
-    logging.info(f"Текст '{text}' успешно отправлен в БЗ")
+    logger.info(f"Текст '{text}' успешно отправлен в БЗ")
 
 async def get_info_from_kb(query: str, chat_id: int):
 
@@ -37,7 +34,7 @@ async def get_info_from_kb(query: str, chat_id: int):
         )
         response.raise_for_status()
         result = response.json()
-    logging.info(f"Ответ от БЗ: {result}")
+    logger.info(f"Ответ от БЗ: {result}")
 
     if not result.get("success") or "results" not in result:
         return None

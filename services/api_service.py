@@ -1,6 +1,6 @@
 import aiohttp
-from config import BACKEND_URL, INTERNAL_API_KEY
 
+from config import BACKEND_URL, INTERNAL_API_KEY
 
 async def init_telegram_auth(telegram_user_id: int, session_id: str) -> str | None:
     """
