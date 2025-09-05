@@ -1,29 +1,17 @@
-from openai import AsyncOpenAI
-import os
 import json
-from datetime import datetime
-from dotenv import load_dotenv
-load_dotenv() 
 
-# Клиент OpenAI
-CLIENT_AS = AsyncOpenAI(
-    api_key=os.getenv("PROXY_API"),
-    base_url=os.getenv("BASE_OPENAI_URL"),
-)
+from config import CLIENT_AS
 
-now = datetime.now()
-
-date = now.strftime("%d.%m.%Y")
-
+# Общая функция обработки сообщений пользователя
 async def llm_response(user_text: str) -> str:
     
     instruction = f'''Ты умный ассистент Мэри по помощи в поиске и добавлении информации в векторных базах данных.
     Определи намерение пользователя по его сообщению, а именно, хочет ли он добавить информацию в базу знаний или же найти в ней информацию.
     Если пользователь хочет добавить информацию, то тебе нужно лишь занести её в базу знаний, не меняя текст пользователя, дай ответ в формате:
-    {{"key": 0, "text": <текст>}}. Если же пользователь ищет информацию, то четко структурируй его вопрос при надобности и
-    дай ответ в формате: {{"key": 1, "text": <запрос пользователя>}}. Сегодня {date}. Учитывай это при занесении информации.
-    Например, если пользователь просит записать созвон на завтра на 14:00 - следовательно, запись должна быть:
-    Созвон 03.09.2025 в 14:00.'''
+    {{"key": 0, "text": <текст>}}. Если же пользователь ищет информацию, то четко структурируй его вопрос, при надобности, и
+    дай ответ в формате: {{"key": 1, "text": <запрос пользователя>}}. Если же пользователь пытаетс просто пообщатьс с тобой, задает тебе обычные пустые
+    вопросы, чтобы пообщатьс или спрашивает что-то нецензурное, то скажи ему, что ты не предназначена дл пустого общени и дай ответ в формате: 
+    {{"key": 2, "text": <твой ответ>}}.'''
 
     chat_completion = await CLIENT_AS.chat.completions.create(
         model="openai/gpt-4o-mini",
@@ -34,14 +22,14 @@ async def llm_response(user_text: str) -> str:
     )
     try:
         response_dict = json.loads(chat_completion.choices[0].message.content)
-
         key_value = response_dict.get('key')
         text_value = response_dict.get('text')
-
     except json.JSONDecodeError as e:
         print(f"Ошибка при парсинге JSON: {e}")
+        
     return key_value, text_value
 
+# После отрицательного результата поиска 
 async def llm_response_after_kb(user_text: str) -> str:
     
     instruction = f'''Ты умный ассистент Мэри. Максимально точно попробуй ответить на этот вопрос.

@@ -5,7 +5,7 @@ import os
 from aiogram import Bot
 
 from config import logger
-from utils.llm_handler import llm_response, llm_response_after_kb
+from utils.llm_responses import llm_response, llm_response_after_kb
 from utils.convert_audio import convert_audio_to_wav
 from services.back_requests import send_audio_to_backend
 from services.kb_requests import get_info_from_kb, save_info_in_kb
@@ -25,14 +25,18 @@ async def text_message_handler(message: types.Message, state: FSMContext):
     if key == 0:
         await save_info_in_kb(response, chat_id)
         await message.answer("Текст сохранен.")
+
     elif key == 1:
         info_from_kb = await get_info_from_kb(response, chat_id)
-        if info_from_kb == None:
+        if info_from_kb:
+            await message.answer(info_from_kb)
+        else:
             await state.update_data(user_message=user_text)
             await message.answer("Не нашла информации в вашей базе знаний. Могу попытаться ответить сама. Нужен ли вам ответ?",
                 reply_markup=decision)
-        else:
-            await message.answer(info_from_kb)
+            
+    elif key == 2:
+        await message.answer(response)
 
 # Хендлер аудио и голосовые сообщения
 @router.message(F.audio | F.voice)
@@ -54,10 +58,9 @@ async def text_message_handler(message: types.Message, bot: Bot, state: FSMConte
         wav_path = convert_audio_to_wav(temp_ogg_path)
         logger.info(f"Конвертация завершена. WAV-файл: {wav_path}")
         text_from_audio = await send_audio_to_backend(wav_path, chat_id)
-        key, response = await llm_response(text_from_audio)
-
         await state.update_data(text_from_audio=text_from_audio)
-
+        
+        key, response = await llm_response(text_from_audio)
         logger.info(f"Ответ от LLM: {key, response}")
         if key == 0:
             await save_info_in_kb(response, chat_id)
