@@ -3,7 +3,7 @@ from aiogram import Bot
 from aiohttp import web
 
 from config import dp, logger, API_TOKEN
-from handlers import start_handler, register_handler, message_handler
+from handlers import start_handler, register_handler, message_handler, info_handler
 from handlers.web_auth_handler import setup_webapp_routes
 
 async def main() -> None:
@@ -12,6 +12,7 @@ async def main() -> None:
 
     dp.include_router(start_handler.router)
     dp.include_router(register_handler.router)
+    dp.include_router(info_handler.router)
     dp.include_router(message_handler.router)
 
     app = web.Application()
