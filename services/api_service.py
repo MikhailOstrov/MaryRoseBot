@@ -10,7 +10,7 @@ async def init_telegram_auth(telegram_user_id: int, session_id: str) -> str | No
     url = f"{BACKEND_URL}/auth/telegram-init"
     headers = {
         "X-Internal-API-Key": INTERNAL_API_KEY
-    }
+    } 
     payload = {
         "telegram_user_id": telegram_user_id,
         "session_id": session_id

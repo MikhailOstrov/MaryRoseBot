@@ -9,10 +9,10 @@ from handlers.web_auth_handler import setup_webapp_routes
 async def main() -> None:
 
     bot = Bot(API_TOKEN)
-
+    
+    dp.include_router(info_handler.router)
     dp.include_router(start_handler.router)
     dp.include_router(register_handler.router)
-    dp.include_router(info_handler.router)
     dp.include_router(message_handler.router)
 
     app = web.Application()

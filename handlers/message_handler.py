@@ -23,8 +23,8 @@ async def text_message_handler(message: types.Message, state: FSMContext):
     key, response = await llm_response(user_text)
     logger.info(f"Ответ от LLM: {key, response}")
     if key == 0:
-        await save_info_in_kb(response, chat_id)
-        await message.answer("Текст сохранен.")
+        response = await save_info_in_kb(response, chat_id)
+        await message.answer(response)
 
     elif key == 1:
         info_from_kb = await get_info_from_kb(response, chat_id)
