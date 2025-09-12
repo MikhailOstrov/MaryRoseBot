@@ -63,16 +63,20 @@ async def text_message_handler(message: types.Message, bot: Bot, state: FSMConte
         key, response = await llm_response(text_from_audio)
         logger.info(f"Ответ от LLM: {key, response}")
         if key == 0:
-            await save_info_in_kb(response, chat_id)
-            await message.answer("Текст сохранен.")
+            response = await save_info_in_kb(response, chat_id)
+            await message.answer(response)
+
         elif key == 1:
             info_from_kb = await get_info_from_kb(response, chat_id)
-            if info_from_kb == None:
+            if info_from_kb:
+                await message.answer(info_from_kb)
+            else:
                 await state.update_data(user_message=text_from_audio)
                 await message.answer("Не нашла информации в вашей базе знаний. Могу попытаться ответить сама. Нужен ли вам ответ?",
                     reply_markup=decision)
-            else:
-                await message.answer(info_from_kb)
+                
+        elif key == 2:
+            await message.answer(response)
     except Exception as e:
         logger.error(f"Произошла ошибка при обработке аудио: {e}")
 
