@@ -28,12 +28,11 @@ async def text_message_handler(message: types.Message, state: FSMContext):
 
         if check == 1:
             await message.answer(warning, reply_markup=continue_after_check)
+            response = await save_info_in_kb(response, chat_id)
+            await message.answer(response)
         elif check == 2:
             await message.answer(warning)
             return
-    
-        response = await save_info_in_kb(response, chat_id)
-        await message.answer(response)
 
     elif key == 1:
         info_from_kb = await get_info_from_kb(response, chat_id)
@@ -76,12 +75,11 @@ async def text_message_handler(message: types.Message, bot: Bot, state: FSMConte
 
             if check == 1:
                 await message.answer(warning, reply_markup=continue_after_check)
+                response = await save_info_in_kb(response, chat_id)
+                await message.answer(response)
             elif check == 2:
                 await message.answer(warning)
                 return
-    
-            response = await save_info_in_kb(response, chat_id)
-            await message.answer(response)
 
         elif key == 1:
             info_from_kb = await get_info_from_kb(response, chat_id)
@@ -122,5 +120,5 @@ async def auth_via_webapp_callback(callback: CallbackQuery):
 @router.callback_query(F.data == "Continue")
 async def answer_continue_callback(callback: CallbackQuery, state: FSMContext):
 
-    await callback.answer() 
+    await callback.message.edit_text(reply_markup=None) 
     await state.clear()
