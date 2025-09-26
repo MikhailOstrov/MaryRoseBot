@@ -60,11 +60,13 @@ async def check_limit_in_kb(chat_id: int):
     headers = {"X-Internal-Api-Key": INTERNAL_API_KEY}
     try:
         async with httpx.AsyncClient() as client:
-                count = await client.post(
+                response = await client.post(
                     url, headers=headers, json={"chat_id": chat_id}, timeout=30.0
                 )
-                count.raise_for_status()
-                logger.info(f"Оставшееся количество записей {count}")
+                response.raise_for_status()
+                data = response.json()
+                logger.info(f"Оставшееся количество записей {data}")
+                count = data["count"]
                 if count <= 5:
                      return 1, "У вас осталось менее 5 записей. Реструктурируйте ваши записи в БЗ. В ином случае некоторая информация может не попасть в БЗ."
                 elif count == 0:
