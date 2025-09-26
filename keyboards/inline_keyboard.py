@@ -19,3 +19,11 @@ decision = InlineKeyboardMarkup(
         ]
     ]
 )
+
+continue_after_check = InlineKeyboardMarkup(
+    inline_keyboard=[
+        [
+            InlineKeyboardButton(text="Продолжить", callback_data="Continue")
+        ]
+    ]
+)
