@@ -120,6 +120,7 @@ async def auth_via_webapp_callback(callback: CallbackQuery):
     )
 
 @router.callback_query(F.data == "Continue")
-async def answer_continue_callback(state: FSMContext):
+async def answer_continue_callback(callback: CallbackQuery, state: FSMContext):
 
+    await callback.answer() 
     await state.clear()
