@@ -8,8 +8,8 @@ from config import logger
 from utils.llm_responses import llm_response, llm_response_after_kb
 from utils.convert_audio import convert_audio_to_wav
 from services.back_requests import send_audio_to_backend
-from services.kb_requests import get_info_from_kb, save_info_in_kb
-from keyboards.inline_keyboard import decision
+from services.kb_requests import get_info_from_kb, save_info_in_kb, check_limit_in_kb
+from keyboards.inline_keyboard import decision, continue_after_check
 
 router = Router()
 
@@ -19,10 +19,19 @@ async def text_message_handler(message: types.Message, state: FSMContext):
     chat_id = message.chat.id
     user_text = message.text
     logger.info(f"Получено текстовое сообщение: '{user_text}' от {message.from_user.full_name}")
-
+    
     key, response = await llm_response(user_text)
     logger.info(f"Ответ от LLM: {key, response}")
     if key == 0:
+        
+        check, warning = await check_limit_in_kb(chat_id)
+
+        if check == 1:
+            await message.answer(warning, reply_markup=continue_after_check)
+        elif check == 2:
+            await message.answer(warning)
+            return
+    
         response = await save_info_in_kb(response, chat_id)
         await message.answer(response)
 
@@ -43,7 +52,6 @@ async def text_message_handler(message: types.Message, state: FSMContext):
 async def text_message_handler(message: types.Message, bot: Bot, state: FSMContext):
     chat_id = message.chat.id
     logger.info(f"Получено аудио или голосовое сообщение от {message.from_user.full_name}")
-
     file_id = message.voice.file_id if message.voice else message.audio.file_id
     temp_dir = "temp_files"
     os.makedirs(temp_dir, exist_ok=True)
@@ -63,6 +71,15 @@ async def text_message_handler(message: types.Message, bot: Bot, state: FSMConte
         key, response = await llm_response(text_from_audio)
         logger.info(f"Ответ от LLM: {key, response}")
         if key == 0:
+
+            check, warning = await check_limit_in_kb(chat_id)
+
+            if check == 1:
+                await message.answer(warning, reply_markup=continue_after_check)
+            elif check == 2:
+                await message.answer(warning)
+                return
+    
             response = await save_info_in_kb(response, chat_id)
             await message.answer(response)
 
@@ -102,3 +119,7 @@ async def auth_via_webapp_callback(callback: CallbackQuery):
         reply_markup=None
     )
 
+@router.callback_query(F.data == "Continue")
+async def answer_continue_callback(state: FSMContext):
+
+    await state.clear()
