@@ -1,23 +1,25 @@
 import httpx
 
-from config import logger
+from config import logger, INTERNAL_API_KEY, BACKEND_URL
 
 async def telegram_auth(email: str, chat_id: int):
 
-    url = "https://maryrose.by/auth/telegram-auth"
+    url = f"{BACKEND_URL}/auth/telegram-auth"
+    headers = {"X-Internal-Api-Key": INTERNAL_API_KEY}
     async with httpx.AsyncClient() as client:
         response = await client.post(
-            url, json={"email": email, "chat_id": chat_id}, timeout=30.0
+            url, headers=headers, json={"email": email, "chat_id": chat_id}, timeout=30.0
         )
         response.raise_for_status()
-    logger.info(f"Авторизаци успешна")
+    logger.info(f"Авторизация успешна")
 
 async def save_info_in_kb(text: str, chat_id: int):
-    url = "https://maryrose.by/knowledge/add-text"
+    url = f"{BACKEND_URL}/knowledge/add-text"
+    headers = {"X-Internal-Api-Key": INTERNAL_API_KEY}
     try:
         async with httpx.AsyncClient() as client:
                 response = await client.post(
-                    url, json={"text": text, "chat_id": chat_id}, timeout=30.0
+                    url, headers=headers, json={"text": text, "chat_id": chat_id}, timeout=30.0
                 )
                 response.raise_for_status()
                 logger.info("Текст успешно добавлен в БЗ.")
@@ -27,11 +29,12 @@ async def save_info_in_kb(text: str, chat_id: int):
         return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
 
 async def get_info_from_kb(query: str, chat_id: int):
-    url = "https://maryrose.by/knowledge/search"
+    url = f"{BACKEND_URL}/knowledge/search"
+    headers = {"X-Internal-Api-Key": INTERNAL_API_KEY}
     try:
         async with httpx.AsyncClient() as client:
             response = await client.post(
-                url, json={"query": query, "chat_id": chat_id}, timeout=30.0
+                url, headers=headers, json={"query": query, "chat_id": chat_id}, timeout=30.0
             )
             response.raise_for_status()
             result = response.json()
