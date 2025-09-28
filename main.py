@@ -27,7 +27,7 @@ async def main() -> None:
     await site.start()
     
     logger.info("Webhook server started on http://0.0.0.0:8080")
-    logger.info("Lifespan: ------------------------------------------------ test docker")
+    logger.info("Lifespan: ----------------------------------------------- test docker")
 
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)

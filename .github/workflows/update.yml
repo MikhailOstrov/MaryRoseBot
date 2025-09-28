@@ -37,6 +37,7 @@ jobs:
 
             # Активируем virtual environment и устанавливаем зависимости
             echo ">>> Setting up virtual environment and installing dependencies..."
+            cd /home/jzndjxjcbd/mary-deployment
             sudo docker compose --env-file .env.prod up -d --build prod_bot
             
             echo ">>> Telegram Bot deployment completed!"
