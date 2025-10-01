@@ -27,9 +27,11 @@ async def text_message_handler(message: types.Message, state: FSMContext):
         check, warning = await check_limit_in_kb(chat_id)
 
         if check == 1:
+            await state.set_data({
+                "data_to_save_after_continue": response,
+                "chat_id_for_save": chat_id
+            })
             await message.answer(warning, reply_markup=continue_after_check)
-            response = await save_info_in_kb(response, chat_id)
-            await message.answer(response)
         elif check == 2:
             await message.answer(warning)
             return
@@ -121,7 +123,17 @@ async def auth_via_webapp_callback(callback: CallbackQuery):
     )
 
 @router.callback_query(F.data == "Continue")
-async def answer_continue_callback(callback: CallbackQuery, state: FSMContext):
-
+async def answer_continue_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.delete()
-    await state.clear()
+
+    data = await state.get_data()
+    data_to_save = data.get("data_to_save_after_continue")
+    chat_id_for_save = data.get("chat_id_for_save")
+
+    if data_to_save is not None and chat_id_for_save is not None:
+        response = await save_info_in_kb(data_to_save, chat_id_for_save)
+        await callback.message.answer(response)
+    else:
+        await callback.message.answer("Произошла ошибка: данные для сохранения не найдены. Попробуйте снова.")
+
+    await state.clear() 
