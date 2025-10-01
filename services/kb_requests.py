@@ -33,7 +33,6 @@ async def save_info_in_kb(text: str, chat_id: int):
         logger.error(f"HTTP ошибка: {e.response.status_code} - {e.response.text}")
         return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
     except Exception as e:
-        # Handle other unexpected errors (e.g., network issues, timeouts, etc.)
         logger.error(f"Произошла непредвиденная ошибка: {e}")
         return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
 
@@ -73,6 +72,7 @@ async def check_limit_in_kb(chat_id: int):
                     url, headers=headers, json={"chat_id": chat_id}, timeout=30.0
                 )
                 response.raise_for_status()
+                logger.info(response)
                 data = response.json()
                 logger.info(f"Оставшееся количество записей {data}")
                 count = data["count"]
