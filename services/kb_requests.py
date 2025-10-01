@@ -1,4 +1,5 @@
 import httpx
+from httpx import HTTPStatusError
 
 from config import logger, INTERNAL_API_KEY, BACKEND_URL
 
@@ -25,7 +26,16 @@ async def save_info_in_kb(text: str, chat_id: int):
                 logger.info(response)
                 logger.info("Текст успешно добавлен в БЗ.")
                 return "Текст успешно добавлен в БЗ."
+    except HTTPStatusError as e:
+        if e.response.status_code == 403:
+            logger.warning(f"Ошибка 403: Превышен лимит записей для chat_id {chat_id}")
+            return "Превышен лимит записей! Объедините или удалите записи."
+        else:
+            logger.error(f"Произошла ошибка HTTP со статусом {e.response.status_code}: {e}")
+            return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
+
     except Exception as e:
+        # Handle other unexpected errors (e.g., network issues, timeouts, etc.)
         logger.error(f"Произошла непредвиденная ошибка: {e}")
         return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
 
