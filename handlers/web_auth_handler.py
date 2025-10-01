@@ -46,6 +46,12 @@ async def handle_auth_success(request: web.Request):
         logger.error(f"Error processing auth callback for user {session.user_id}: {e}")
         return web.Response(status=500, text="Internal server error")
 
+
+async def handle_health_check(request: web.Request):
+    """Простой ответ, подтверждающий, что веб-сервер жив."""
+    return web.Response(status=200, text="OK")
+
 def setup_webapp_routes(app: web.Application):
     """Добавляет роуты веб-приложения."""
     app.router.add_post('/auth-success', handle_auth_success)
+    app.router.add_get('/health', handle_health_check)
