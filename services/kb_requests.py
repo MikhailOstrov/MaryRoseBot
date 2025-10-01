@@ -26,16 +26,7 @@ async def save_info_in_kb(text: str, chat_id: int):
                 logger.info(response)
                 logger.info("Текст успешно добавлен в БЗ.")
                 return "Текст успешно добавлен в БЗ."
-    except HTTPStatusError as e:
-        if e.response.status_code == 403:
-            logger.warning(f"Ошибка 403: Превышен лимит записей для chat_id {chat_id}")
-            return "Превышен лимит записей! Объедините или удалите записи."
-        else:
-            logger.error(f"Произошла ошибка HTTP со статусом {e.response.status_code}: {e}")
-            return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
-
     except Exception as e:
-        # Handle other unexpected errors (e.g., network issues, timeouts, etc.)
         logger.error(f"Произошла непредвиденная ошибка: {e}")
         return "Произошла ошибка на сервере, информация не добавлена. Исправим в ближайшее время, а пока, сохраните текст где-нибудь!"
 
@@ -75,13 +66,14 @@ async def check_limit_in_kb(chat_id: int):
                     url, headers=headers, json={"chat_id": chat_id}, timeout=30.0
                 )
                 response.raise_for_status()
+                logger.info(response)
                 data = response.json()
                 logger.info(f"Оставшееся количество записей {data}")
                 count = data["count"]
                 if count <= 5:
                      return 1, "У вас осталось менее 5 записей. Реструктурируйте ваши записи в БЗ. В ином случае некоторая информация может не попасть в БЗ."
                 elif count == 0:
-                    return 2,"Вы достигли лимита записей."
+                    return 2, "Вы достигли лимита записей."
                 else:
                      return 0, None
     except Exception as e:
