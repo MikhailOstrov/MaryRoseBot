@@ -23,7 +23,8 @@ async def save_info_in_kb(text: str, chat_id: int):
                     url, headers=headers, json={"text": text, "chat_id": chat_id}, timeout=30.0
                 )
                 response.raise_for_status()
-                logger.info(response)
+                response_data = response.json()
+                logger.info(response_data)
                 logger.info("Текст успешно добавлен в БЗ.")
                 return "Текст успешно добавлен в БЗ."
     except httpx.HTTPStatusError as e:
