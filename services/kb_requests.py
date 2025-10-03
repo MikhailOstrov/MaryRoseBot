@@ -24,9 +24,34 @@ async def save_info_in_kb(text: str, chat_id: int):
                 )
                 response.raise_for_status()
                 response_data = response.json()
-                logger.info(response_data)
-                logger.info("Текст успешно добавлен в БЗ.")
-                return "Текст успешно добавлен в БЗ."
+
+                added = response_data.get('added_notes', [])
+                failed = response_data.get('failed_notes', [])
+                cancelled = response_data.get('cancelled_notes', [])
+                
+                output_messages = []
+                
+                if added:
+                    output_messages.append(f"Успешно добавлено {len(added)} заметок:")
+                    for note in added:
+                        title = note.get('title', 'Неизвестный заголовок')
+                        path = note.get('path', 'Нет пути')
+                        output_messages.append(f"{title} (Раздел: `{path}`)")
+                
+                if failed:
+                    output_messages.append(f"\nНе удалось добавить {len(failed)} заметок:")
+                    for note in failed:
+                        title = note.get('title', 'Неизвестный заголовок')
+                        error = note.get('error', 'Причина неизвестна.')
+                        output_messages.append(f"{title}**. Ошибка: {error}")
+                        
+                if cancelled:
+                    output_messages.append(f"\n{len(cancelled)} заметок были отменены.")
+                    
+                if not output_messages:
+                    return "Сервер вернул пустой отчет. Никакие записи не были добавлены/изменены."
+
+                return "\n".join(output_messages)
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 403:
             logger.warning(f"Достигнут лимит на количество заметок в БЗ для chat_id={chat_id}")
