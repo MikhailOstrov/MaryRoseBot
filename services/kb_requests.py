@@ -36,7 +36,7 @@ async def save_info_in_kb(text: str, chat_id: int):
                     for note in added:
                         title = note.get('title', 'Неизвестный заголовок')
                         path = note.get('path', 'Нет пути')
-                        output_messages.append(f"{title} (Раздел: `{path}`)")
+                        output_messages.append(f"{title} (Раздел: {path})")
                 
                 if failed:
                     output_messages.append(f"\nНе удалось добавить {len(failed)} заметок:")
@@ -49,7 +49,7 @@ async def save_info_in_kb(text: str, chat_id: int):
                     output_messages.append(f"\n{len(cancelled)} заметок были отменены.")
                     
                 if not output_messages:
-                    return "Сервер вернул пустой отчет. Никакие записи не были добавлены/изменены."
+                    return "Сервер вернул пустой отчет. Никакие записи не были добавлены."
 
                 return "\n".join(output_messages)
     except httpx.HTTPStatusError as e:
