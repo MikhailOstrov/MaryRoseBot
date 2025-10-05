@@ -18,7 +18,7 @@ async def main() -> None:
 
     app = web.Application()
     app["bot"] = bot
-    app["storage"] = dp.storage
+    app["dp"] = dp
     setup_webapp_routes(app)
     setup_notification_routes(app)
     

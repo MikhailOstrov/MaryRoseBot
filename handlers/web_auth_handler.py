@@ -1,7 +1,7 @@
 from aiohttp import web
-from aiogram import Bot
+from aiogram import Bot, Dispatcher  # Добавлен Dispatcher
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.fsm.storage.base import BaseStorage  # Для доступа к storage.set_state
+# Убрали импорт BaseStorage — больше не нужен
 
 from utils.session_manager import session_manager
 from config import INTERNAL_API_KEY, logger
@@ -37,17 +37,18 @@ async def handle_auth_success(request: web.Request):
 
     # 4. Взаимодействуем с Telegram через объект бота
     bot: Bot = request.app['bot']
-    storage: BaseStorage = request.app['storage']  # Предполагаем, что storage добавлен в app в main.py
+    dp: Dispatcher = request.app['dp']  # Добавлено: доступ к диспетчеру
     try:
         # Удаляем сообщение с кнопкой "Войти в аккаунт"
         await bot.delete_message(chat_id=session.user_id, message_id=session.message_id)
         
-        # Обновляем состояние на authorized
-        await storage.set_state(
+        # Обновляем состояние на authorized (через FSMContext)
+        state = await dp.fsm.get_context(
+            bot=bot,
             chat_id=session.user_id,
-            user_id=session.user_id,
-            state=AuthStates.authorized
+            user_id=session.user_id
         )
+        await state.set_state(AuthStates.authorized)
         
         # Отправляем приветственное сообщение с основной клавиатурой
         await bot.send_message(
