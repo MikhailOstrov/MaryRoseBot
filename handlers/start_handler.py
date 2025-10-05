@@ -1,6 +1,8 @@
 from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram import Router, F, Bot
+from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 
 from keyboards.inline_keyboard import auth_keyboard
 from services import api_service
@@ -9,19 +11,26 @@ from utils.session_manager import session_manager
 
 router = Router()
 
+# Определяем состояния (можно вынести в отдельный модуль, если нужно)
+class AuthStates(StatesGroup):
+    waiting_for_auth = State()  # Ожидание авторизации/регистрации (игнорируем сообщения)
+    authorized = State()        # Авторизовано (нормальная работа)
+
 # /start
 @router.message(CommandStart())
-async def command_start_handler(message: Message) -> None:
+async def command_start_handler(message: Message, state: FSMContext) -> None:
+    await state.set_state(AuthStates.waiting_for_auth)  # Устанавливаем состояние ожидания
     await message.answer(
         f"""👋 Привет, {message.from_user.full_name}! Для начала нужно войти в аккаунт.\nНажми ЗАРЕГИСТРИРОВАТЬСЯ, если ещё не имеешь аккаунта на основном сайте.\nНажми АВТОРИЗОВАТЬСЯ, если уже имеешь аккаунт:""",
         reply_markup=auth_keyboard
     )
 
 @router.callback_query(F.data == "auth")
-async def auth_via_webapp_callback(callback: CallbackQuery, bot: Bot):
+async def auth_via_webapp_callback(callback: CallbackQuery, bot: Bot, state: FSMContext):
     """
     Обрабатывает нажатие кнопки "Авторизоваться", инициируя вход через Web App.
     """
+    await state.set_state(AuthStates.waiting_for_auth)  # Устанавливаем состояние ожидания
     await callback.answer() # Убираем часики
 
     user_id = callback.from_user.id
@@ -58,3 +67,9 @@ async def auth_via_webapp_callback(callback: CallbackQuery, bot: Bot):
             chat_id=user_id,
             message_id=message.message_id
         )
+
+# Игнорирование всех сообщений в состоянии waiting_for_auth
+@router.message(AuthStates.waiting_for_auth)
+async def ignore_handler(message: Message, state: FSMContext):
+    # Ничего не делаем — бот молчит, сообщение игнорируется
+    pass

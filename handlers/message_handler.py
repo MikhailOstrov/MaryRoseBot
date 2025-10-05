@@ -3,6 +3,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 import os
 from aiogram import Bot
+from aiogram.fsm.state import State, StatesGroup
 
 from config import logger
 from utils.llm_responses import llm_response, llm_response_after_kb
@@ -13,8 +14,13 @@ from keyboards.inline_keyboard import decision, continue_after_check
 
 router = Router()
 
-# Хендлер на текстовые сообщения
-@router.message(F.text)
+# Определяем состояния (дублируем для совместимости; лучше импортировать из utils.states)
+class AuthStates(StatesGroup):
+    waiting_for_auth = State()  # Ожидание авторизации/регистрации
+    authorized = State()        # Авторизовано
+
+# Хендлер на текстовые сообщения (только после авторизации)
+@router.message(AuthStates.authorized, F.text)
 async def text_message_handler(message: types.Message, state: FSMContext):
     chat_id = message.chat.id
     user_text = message.text
@@ -51,9 +57,9 @@ async def text_message_handler(message: types.Message, state: FSMContext):
     elif key == 2:
         await message.answer(response)
 
-# Хендлер аудио и голосовые сообщения
-@router.message(F.audio | F.voice)
-async def text_message_handler(message: types.Message, bot: Bot, state: FSMContext):
+# Хендлер аудио и голосовые сообщения (только после авторизации)
+@router.message(AuthStates.authorized, F.audio | F.voice)
+async def audio_message_handler(message: types.Message, bot: Bot, state: FSMContext):
     chat_id = message.chat.id
     logger.info(f"Получено аудио или голосовое сообщение от {message.from_user.full_name}")
     file_id = message.voice.file_id if message.voice else message.audio.file_id
@@ -100,8 +106,8 @@ async def text_message_handler(message: types.Message, bot: Bot, state: FSMConte
     except Exception as e:
         logger.error(f"Произошла ошибка при обработке аудио: {e}")
 
-# Хендлер на колбэк "Yes"
-@router.callback_query(F.data == "Yes")
+# Хендлер на колбэк "Yes" (только после авторизации)
+@router.callback_query(AuthStates.authorized, F.data == "Yes")
 async def answer_yes_callback(callback: CallbackQuery, state: FSMContext):
 
     user_data = await state.get_data()
@@ -114,15 +120,17 @@ async def answer_yes_callback(callback: CallbackQuery, state: FSMContext):
         await callback.message.edit_text("Извините, произошла какая-то ошибка.", reply_markup=None)
     await state.clear()
 
-@router.callback_query(F.data == "No")
-async def auth_via_webapp_callback(callback: CallbackQuery):
+# Хендлер на колбэк "No" (только после авторизации)
+@router.callback_query(AuthStates.authorized, F.data == "No")
+async def answer_no_callback(callback: CallbackQuery):
 
     await callback.message.edit_text(
         text="Хорошо, можете продолжать работу.",
         reply_markup=None
     )
 
-@router.callback_query(F.data == "Continue")
+# Хендлер на колбэк "Continue" (только после авторизации)
+@router.callback_query(AuthStates.authorized, F.data == "Continue")
 async def answer_continue_callback(callback: types.CallbackQuery, state: FSMContext):
     await callback.message.delete()
 

@@ -1,8 +1,15 @@
 from aiohttp import web
 from aiogram import Bot
+from aiogram.fsm.state import State, StatesGroup
+from aiogram.fsm.storage.base import Storage  # Для доступа к storage.set_state
 
 from utils.session_manager import session_manager
 from config import INTERNAL_API_KEY, logger
+
+# Определяем состояния (дублируем для совместимости; лучше вынести в utils)
+class AuthStates(StatesGroup):
+    waiting_for_auth = State()  # Ожидание авторизации/регистрации
+    authorized = State()        # Авторизовано
 
 async def handle_auth_success(request: web.Request):
     """
@@ -30,9 +37,17 @@ async def handle_auth_success(request: web.Request):
 
     # 4. Взаимодействуем с Telegram через объект бота
     bot: Bot = request.app['bot']
+    storage: Storage = request.app['storage']  # Предполагаем, что storage добавлен в app в main.py
     try:
         # Удаляем сообщение с кнопкой "Войти в аккаунт"
         await bot.delete_message(chat_id=session.user_id, message_id=session.message_id)
+        
+        # Обновляем состояние на authorized
+        await storage.set_state(
+            chat_id=session.user_id,
+            user_id=session.user_id,
+            state=AuthStates.authorized
+        )
         
         # Отправляем приветственное сообщение с основной клавиатурой
         await bot.send_message(
