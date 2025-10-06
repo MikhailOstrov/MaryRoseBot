@@ -1,6 +1,6 @@
 from aiogram import Router, types
 from aiogram.filters import Command
-
+from states.bot_states import UserAuthStatus
 router = Router()
 
 # Хэндлер вызова дополнительной инструкции для пользователя
