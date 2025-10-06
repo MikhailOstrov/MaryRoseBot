@@ -1,10 +1,10 @@
 from aiogram import Router, types
 from aiogram.filters import Command
-
+from states.bot_states import UserAuthStatus
 router = Router()
 
 # Хэндлер вызова дополнительной инструкции для пользователя-
-@router.message(Command("info"))
+@router.message(Command("info"), UserAuthStatus.authorized)
 async def handle_info_command(message: types.Message):
     await message.answer('''
 --- Инструкция для лучшего качества пользования ---

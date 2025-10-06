@@ -14,11 +14,10 @@ async def main() -> None:
     dp.include_router(info_handler.router)
     dp.include_router(start_handler.router)
     dp.include_router(register_handler.router)
-    dp.include_router(message_handler.router)
+    dp.include_router(message_handler.router) 
 
     app = web.Application()
     app["bot"] = bot
-    app["dp"] = dp
     setup_webapp_routes(app)
     setup_notification_routes(app)
     
