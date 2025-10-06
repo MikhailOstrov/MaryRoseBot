@@ -3,7 +3,7 @@ from aiogram.filters import Command
 
 router = Router()
 
-# Хэндлер вызова дополнительной инструкции для пользователя-
+# Хэндлер вызова дополнительной инструкции для пользователя
 @router.message(Command("info"))
 async def handle_info_command(message: types.Message):
     await message.answer('''
