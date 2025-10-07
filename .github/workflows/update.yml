@@ -40,6 +40,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/mr-assistant2025:bot-${{ env.VERSION_TAG }}
+          cache-from: type=gha,scope=${{ github.workflow }}-bot-${{ github.ref }}
+          cache-to: type=gha,scope=${{ github.workflow }}-bot-${{ github.ref }},mode=max
 
   # --- ЗАДАЧА 2: ДЕПЛОЙ НА ВМ ---
   deploy:
