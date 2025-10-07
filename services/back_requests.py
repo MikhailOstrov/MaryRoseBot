@@ -1,11 +1,11 @@
 import httpx
 import os
 
-from config import logger, AI_BACKEND_URL
+from config import logger, AI_BACKEND_URL, INTERNAL_API_KEY
 
 async def send_audio_to_backend(wav_path: str, chat_id: int):
 
-    headers = {"X-Internal-Api-Key": 'key'}
+    headers = {"X-Internal-Api-Key": INTERNAL_API_KEY}
     url = f"{AI_BACKEND_URL}/api/v1/internal/audio"
     try: 
         async with httpx.AsyncClient() as client:
