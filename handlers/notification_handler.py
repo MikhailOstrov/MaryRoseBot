@@ -11,11 +11,6 @@ async def handle_send_notification(request: web.Request):
     """
     # 1. Проверяем внутренний API ключ
     auth_header = request.headers.get("Authorization")
-    
-    # ВРЕМЕННОЕ ЛОГИРОВАНИЕ ДЛЯ ОТЛАДКИ
-    logger.info(f"DEBUG: Received auth_header: {auth_header}")
-    logger.info(f"DEBUG: Expected: Bearer {INTERNAL_API_KEY}")
-    
     # Используем X-Internal-API-Key, как договаривались
     if not auth_header or auth_header != f"Bearer {INTERNAL_API_KEY}":
         logger.warning(f"Unauthorized attempt to access /send-notification from {request.remote}")

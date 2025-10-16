@@ -69,7 +69,7 @@ jobs:
           key: ${{ secrets.MAIN_SERVICE_SSH_PRIVATE_KEY }}
           script: |
             set -e
-            cd /home/jzndjxjcbd/mary-deployment
+            cd /home/turikroma15/mary-deployment
 
             echo ">>> Redeploying bot..."
             # 1. Скачиваем новый образ
