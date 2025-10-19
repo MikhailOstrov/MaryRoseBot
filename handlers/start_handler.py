@@ -7,8 +7,27 @@ from keyboards.inline_keyboard import auth_keyboard
 from services import api_service
 from keyboards.register_keyboard import get_webapp_keyboard
 from utils.session_manager import session_manager
+from utils.generate_referal import generate_token
+from config import ADMINS_IDS
 
 router = Router()
+
+
+@router.message(Command("generate"))
+async def generate_referal_command(message: Message) :
+    user_id = message.from_user.id
+    admins_ids = [int(id) for id in ADMINS_IDS.split(",")]
+    if user_id not in admins_ids:
+        await message.answer("У вас нет доступа к этой команде")
+        return
+    args = message.text.split(" ")[1:]
+    if len(args) != 2:
+        await message.answer("Неверный формат команды\nИспользуйте: /generate <code> <referrer>")
+        return
+    code = args[0]
+    referrer = args[1]
+    referal_url = generate_token(code, referrer)
+    await message.answer(referal_url)
 
 # /start
 @router.message(CommandStart())

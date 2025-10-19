@@ -5,4 +5,5 @@ pydub>=0.25.1
 openai>=1.99.6
 requests
 aiohttp>=3.9.5
+python-jose==3.5.0
 

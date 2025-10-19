@@ -11,12 +11,16 @@ RUNPOD_API = os.getenv("RUNPOD_API") # От RunPod (API)
 AI_BACKEND_URL = os.getenv("AI_BACKEND_URL") # От RunPod (ID)
 BACKEND_URL = os.getenv("BACKEND_URL") # От бэка с БД
 INTERNAL_API_KEY = os.getenv("INTERNAL_API_KEY") # Ключ от бэка с БД
+SECRET_KEY = os.getenv("SECRET_KEY") # Секретный ключ для JWT
+ALGORITHM = "HS256" # Алгоритм для JWT
 
 # Клиент OpenAI
 CLIENT_AS = AsyncOpenAI(
     api_key=os.getenv("PROXY_API"),
     base_url=os.getenv("BASE_OPENAI_URL"),
 )
+
+ADMINS_IDS = os.getenv("ADMINS_IDS")
 
 # Под конвертацию аудио
 ffmpeg_path = os.getenv("FFMPEG_PATH")
