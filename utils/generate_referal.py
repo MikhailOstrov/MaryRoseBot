@@ -7,6 +7,7 @@ def generate_token(code: str, referrer: str, hours: int = 24):
     Генерирует инвайт-токен на основе настроек и аргументов командной строки.
     """
     try:
+        print(f"DEBUG: generate_token | Using SECRET_KEY starting with: {SECRET_KEY[:4] if SECRET_KEY else 'None'}")
         expire = datetime.now(timezone.utc) + timedelta(hours=hours)
         to_encode = {
             "exp": expire,
