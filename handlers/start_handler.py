@@ -9,6 +9,8 @@ from keyboards.register_keyboard import get_webapp_keyboard
 from utils.session_manager import session_manager
 from utils.generate_referal import generate_token
 from config import ADMINS_IDS
+from config import logger
+
 
 
 router = Router()
