@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from config import SECRET_KEY, ALGORITHM
-from jose import JWTError, jwt
+from jose import JWTError, jwt      
 
 def generate_token(code: str, referrer: str, hours: int = 24):
     """

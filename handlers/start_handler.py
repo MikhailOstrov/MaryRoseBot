@@ -1,4 +1,4 @@
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
@@ -9,6 +9,7 @@ from keyboards.register_keyboard import get_webapp_keyboard
 from utils.session_manager import session_manager
 from utils.generate_referal import generate_token
 from config import ADMINS_IDS
+
 
 router = Router()
 
