@@ -15,7 +15,7 @@ def generate_token(code: str, referrer: str, hours: int = 24):
             "referrer": referrer
         }
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return f"https://app.maryrose.by/signup?invite_token={encoded_jwt}\n"
+        return f"https://app.maryrose.by/signup?invite_token={encoded_jwt}"
         
     except Exception as e:
         return f"Error: {e}"
