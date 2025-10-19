@@ -1,13 +1,16 @@
 from datetime import datetime, timezone, timedelta
 from config import SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt      
+from config import logger
+
+
 
 def generate_token(code: str, referrer: str, hours: int = 24):
     """
     Генерирует инвайт-токен на основе настроек и аргументов командной строки.
     """
     try:
-        print(f"DEBUG: generate_token | Using SECRET_KEY starting with: {SECRET_KEY[:4] if SECRET_KEY else 'None'}")
+        logger.info(f"DEBUG: generate_token | Using SECRET_KEY starting with: {SECRET_KEY[:4] if SECRET_KEY else 'None'}")
         expire = datetime.now(timezone.utc) + timedelta(hours=hours)
         to_encode = {
             "exp": expire,

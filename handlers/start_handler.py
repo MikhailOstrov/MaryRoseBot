@@ -27,6 +27,7 @@ async def generate_referal_command(message: Message) :
         return
     code = args[0]
     referrer = args[1]
+    logger.info(f"DEBUG: generate_referal_command | Generating token for code: {code}, referrer: {referrer}")
     referal_url = generate_token(code, referrer)
     await message.answer(referal_url)
 
