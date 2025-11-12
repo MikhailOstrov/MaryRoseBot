@@ -57,3 +57,32 @@ async def init_telegram_login(telegram_user_id: int, session_id: str) -> str | N
         except aiohttp.ClientError as e:
             print(f"Request failed: {e}")
             return None
+
+
+async def create_referral_code(code: str, tariff_id: int) -> bool:
+    """
+    Отправляет запрос на бэкенд для создания нового реферального кода.
+    Возвращает True в случае успеха, False в случае неудачи.
+    """
+    url = f"{BACKEND_URL}/referrals/"
+    headers = {
+        "X-Internal-API-Key": INTERNAL_API_KEY,
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "code": code,
+        "tariff_id": tariff_id
+    }
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.post(url, json=payload, headers=headers) as response:
+                # Успешное создание возвращает статус 201 Created
+                if response.status == 201:
+                    return True
+                else:
+                    print(f"Error from backend while creating referral code: {response.status} - {await response.text()}")
+                    return False
+        except aiohttp.ClientError as e:
+            print(f"Request to create referral code failed: {e}")
+            return False

@@ -7,11 +7,11 @@ from keyboards.inline_keyboard import auth_keyboard
 from services import api_service
 from keyboards.register_keyboard import get_webapp_keyboard
 from utils.session_manager import session_manager
-from utils.generate_referal import generate_token
+from utils.generate_referal import generate_token, generate_refferal_code
 from config import ADMINS_IDS
 from config import logger
 
-
+    
 
 router = Router()
 
@@ -32,6 +32,38 @@ async def generate_referal_command(message: Message) :
     logger.info(f"DEBUG: generate_referal_command | Generating token for code: {code}, referrer: {referrer}")
     referal_url = generate_token(code, referrer)
     await message.answer(referal_url)
+
+
+@router.message(Command("create_ref"))
+async def create_referral_command(message: Message):
+    user_id = message.from_user.id
+    admins_ids = [int(id) for id in ADMINS_IDS.split(",")]
+    if user_id not in admins_ids:
+        await message.answer("У вас нет доступа к этой команде")
+        return
+
+    args = message.text.split(" ")[1:]
+    # Использование: /create_ref <tariff_id> [custom_code]
+    if not 1 <= len(args) <= 2:
+        await message.answer("Неверный формат команды.\nИспользуйте: /create_ref <ID тарифа> [название_кода]")
+        return
+
+    try:
+        tariff_id = int(args[0])
+    except ValueError:
+        await message.answer("ID тарифа должен быть числом.")
+        return
+
+    custom_code = args[1] if len(args) > 1 else None
+
+    try:
+        result_message = await generate_refferal_code(tariff_id, custom_code)
+    except Exception as e:
+        await message.answer(f"Ошибка при создании реферального кода: {e}")
+        return
+
+    await message.answer(result_message)
+
 
 # /start
 @router.message(CommandStart())
