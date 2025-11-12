@@ -3,8 +3,8 @@ from config import SECRET_KEY, ALGORITHM
 from jose import JWTError, jwt      
 from config import logger
 import secrets
-from services import api_service
 
+from services.api_service import create_referral_code
 
 
 def generate_token(code: str, referrer: str, hours: int = 24):
@@ -36,7 +36,7 @@ async def generate_refferal_code(tariff_id: int, code: str = None):
         # Генерируем случайный 8-значный код, если не предоставлен собственный
         raise ValueError("Code is required")
     try:
-        success = await api_service.create_referral_code(code=code, tariff_id=tariff_id)
+        success = await create_referral_code(code=code, tariff_id=tariff_id)
         if success:
             return f"https://app.maryrose.by/signup?ref_code={code}"
         else:
